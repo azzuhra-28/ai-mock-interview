@@ -85,39 +85,70 @@ class DataLoader:
     
     def load_stopwords(self):
         """
-        Load stopwords for text preprocessing
+        Load stopwords for text preprocessing from files or use defaults
+        Supports both Indonesian and English stopwords
         
         Returns:
-            set: Set of stopwords
+            set: Combined set of stopwords (Indonesian + English)
         """
-        filepath = self.data_dir / 'stopwords_id.txt'
+        stopwords = set()
         
-        # Combined Indonesian and English stopwords
-        default_stopwords = {
-            # Indonesian
-            'yang', 'untuk', 'pada', 'ke', 'para', 'namun', 'menurut', 'antara',
-            'dia', 'dua', 'ia', 'seperti', 'jika', 'jika', 'sehingga', 'kembali',
-            'dan', 'di', 'dari', 'ini', 'itu', 'dengan', 'tidak', 'ada',
-            'atau', 'oleh', 'sebagai', 'adalah', 'akan', 'saya', 'kami',
-            # English
-            'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
-            'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'were', 'been',
-            'be', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
-            'could', 'should', 'may', 'might', 'can', 'this', 'that', 'these',
-            'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'what', 'which',
-            'who', 'when', 'where', 'why', 'how'
-        }
+        # Try to load Indonesian stopwords
+        id_filepath = self.data_dir / 'stopwords_id.txt'
+        if id_filepath.exists():
+            try:
+                with open(id_filepath, 'r', encoding='utf-8') as f:
+                    id_words = set(line.strip().lower() for line in f if line.strip())
+                stopwords.update(id_words)
+                print(f"✅ Loaded {len(id_words)} Indonesian stopwords from file")
+            except Exception as e:
+                print(f"⚠️ Error loading Indonesian stopwords: {e}")
+        else:
+            # Fallback: Comprehensive Indonesian stopwords
+            default_id = {
+                'yang', 'untuk', 'pada', 'ke', 'para', 'namun', 'menurut', 'antara',
+                'dia', 'dua', 'ia', 'seperti', 'jika', 'sehingga', 'kembali', 'dengan',
+                'dan', 'di', 'dari', 'ini', 'itu', 'tidak', 'ada', 'atau', 'oleh',
+                'sebagai', 'adalah', 'akan', 'saya', 'kami', 'kita', 'mereka', 'anda',
+                'juga', 'sudah', 'dapat', 'telah', 'bisa', 'sangat', 'hanya', 'dalam',
+                'tersebut', 'hal', 'masih', 'saat', 'bahwa', 'karena', 'ketika', 'setelah',
+                'selama', 'hingga', 'serta', 'maka', 'masing', 'sama', 'lain', 'lebih',
+                'pernah', 'belum', 'banyak', 'antara', 'sekitar', 'sekali', 'setiap',
+                'semua', 'sebuah', 'suatu', 'bila', 'apabila', 'bahwa', 'dimana',
+                'dimana', 'kepada', 'terhadap', 'yaitu', 'yakni'
+            }
+            stopwords.update(default_id)
+            print(f"⚠️ File not found, using {len(default_id)} default Indonesian stopwords")
         
-        if not filepath.exists():
-            return default_stopwords
-        
-        try:
-            with open(filepath, 'r', encoding='utf-8') as f:
-                custom_stopwords = set(line.strip().lower() for line in f if line.strip())
-            return default_stopwords.union(custom_stopwords)
-        except Exception as e:
-            print(f"Error loading stopwords: {e}")
-            return default_stopwords
+        # Try to load English stopwords
+        en_filepath = self.data_dir / 'stopwords_english.txt'
+        if en_filepath.exists():
+            try:
+                with open(en_filepath, 'r', encoding='utf-8') as f:
+                    en_words = set(line.strip().lower() for line in f if line.strip())
+                stopwords.update(en_words)
+                print(f"✅ Loaded {len(en_words)} English stopwords from file")
+            except Exception as e:
+                print(f"⚠️ Error loading English stopwords: {e}")
+        else:
+            # Fallback: Essential English stopwords
+            default_en = {
+                'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+                'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'were', 'been',
+                'be', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
+                'could', 'should', 'may', 'might', 'can', 'this', 'that', 'these',
+                'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'what', 'which',
+                'who', 'when', 'where', 'why', 'how', 'if', 'then', 'than', 'so',
+                'just', 'only', 'very', 'too', 'also', 'about', 'into', 'through',
+                'over', 'before', 'after', 'above', 'below', 'between', 'under',
+                'again', 'once', 'here', 'there', 'all', 'both', 'each', 'few',
+                'more', 'most', 'some', 'such', 'no', 'not', 'yes', 'other', 'any'
+            }
+            stopwords.update(default_en)
+            print(f"⚠️ File not found, using {len(default_en)} default English stopwords")
+    
+        print(f"📊 Total stopwords loaded: {len(stopwords)}")
+        return stopwords
     
     def save_questions(self, questions):
         """Save questions to JSON file"""
