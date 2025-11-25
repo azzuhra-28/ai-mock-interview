@@ -161,7 +161,6 @@ class CVAnalyzer:
                         level_scores['Mid-level'] += 1
                     elif level == 'senior':
                         level_scores['Senior'] += 1
-
         if max(level_scores.values()) == 0:
             return 'Mid-level'
         return max(level_scores, key=level_scores.get)
